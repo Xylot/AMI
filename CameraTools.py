@@ -10,9 +10,9 @@ class CameraTools:
 	def __init__(self):
 		self.recordingCount = 5
 		self.createFolder()
-		for i in range(1,10):
+		for i in range(1,3):
 			self.initializeCamera(i)
-			self.record(10)
+			self.record(5)
 			self.endRecording()
 			time.sleep(3)
 		
@@ -28,12 +28,8 @@ class CameraTools:
 		while(int(time.time() - startTime) < duration):
 		    ret, frame = self.cap.read()
 		    if ret==True:
-
 		        self.out.write(frame)
-
 		        cv2.imshow('frame',frame)
-		        # if cv2.waitKey(1) & 0xFF == ord('q'):
-		        #     break
 		    else:
 		        break
 

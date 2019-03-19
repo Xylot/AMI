@@ -31,9 +31,9 @@ createRectangleArray(2, 12)
 
 
 w.after(1000, w.itemconfig(rectangleArray[0][1], fill='red'))
-w.after(1000, w.itemconfig(rectangleArray[0][2], fill='red'))
-w.after(1000, w.itemconfig(rectangleArray[0][3], fill='red'))
-w.after(1000, w.itemconfig(rectangleArray[0][4], fill='red'))
+# w.after(1000, w.itemconfig(rectangleArray[0][2], fill='red'))
+# w.after(1000, w.itemconfig(rectangleArray[0][3], fill='red'))
+# w.after(1000, w.itemconfig(rectangleArray[0][4], fill='red'))
 
 
 #pprint(rectangleArray)
