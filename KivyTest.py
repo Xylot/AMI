@@ -5,19 +5,21 @@ from kivy.uix.button import Button
 from kivy.graphics import *
 from kivy.core.window import Window
 from kivy.uix.progressbar import ProgressBar
-
+from kivy.config import Config
 
 class Home(FloatLayout):
 	def __init__(self):
 		super(Home, self).__init__()
 		# Window.clearcolor = (1, 1, 1, 1)
+		Window.size = (780, 600)
 		self.size = Window.size
 		self.deviceArray = Widget(size=(100,100))
 		self.add_widget(self.deviceArray)
 
 		self.setNodeProperties()
 
-		self.recordingProgressBar = ProgressBar(max=1000, Widget.y=10)
+
+		self.recordingProgressBar = ProgressBar(max=1000, pos=(0, -250), width=100, height=400)
 		self.add_widget(self.recordingProgressBar)
 		self.currentProgress = 0
 		self.recordingProgressBar.value = self.currentProgress
@@ -41,7 +43,7 @@ class Home(FloatLayout):
 						Color(1,0,0,1)
 					else:
 						Color(1,1,1,1)
-					self.deviceArrayList.append(self.createNode(colNum * 100 + colNum * 10 + 18, Window.size[1] - (rowNum + 1) * 110))
+					self.deviceArrayList.append(self.createNode(colNum * 100 + colNum * 10 + 10, Window.size[1] - (rowNum + 1) * 110))
 	
 	def changeActiveNode(self, instance):
 		self.activeNode = self.activeNode + 1
