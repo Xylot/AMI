@@ -1,7 +1,7 @@
 import cv2  
 
 def show_webcam(mirror = False):
-    scale = 10
+    scale = 30
 
     cam = cv2.VideoCapture(0)
     while True:
@@ -22,7 +22,9 @@ def show_webcam(mirror = False):
         cropped = img[minX: maxX, minY: maxY]
         resized_cropped = cv2.resize(cropped, (width, height))
 
-        cv2.imshow('my webcam', resized_cropped)
+        k = cv2.waitKey(1)
+
+        cv2.imshow('View', resized_cropped)
         if cv2.waitKey(1) == 27:
             break# esc to quit
 
@@ -34,6 +36,10 @@ def show_webcam(mirror = False):
         if cv2.waitKey(1) == ord('w'):
             scale = 5# + 5
 
+    cap.release()
+    destroyEverything()
+    
+def destroyEverything():
     cv2.destroyAllWindows()
 
 def main():

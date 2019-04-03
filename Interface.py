@@ -44,6 +44,6 @@ w.after(1000, w.itemconfig(rectangleArray[0][1], fill='red'))
 
 #w.create_rectangle(0, 0, 100, 100, fill="black", outline = 'black')
 #w.create_rectangle(110, 0, 210, 100, fill="blue", outline = 'blue')
-#w.create_rectangle(50, 50, 100, 100, fill="red", outline = 'blue') 
+#w.create_rectangle(50, 50, 100, 100, fill="red", outcline = 'blue') 
 w.pack()
 master.mainloop()

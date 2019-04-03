@@ -2,33 +2,44 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.graphics import *
 from kivy.core.window import Window
 from kivy.uix.progressbar import ProgressBar
+from kivy.uix.checkbox import CheckBox
 from kivy.config import Config
 
+import threading
+import time
+
+from CameraTools import CameraTools
+
+
 class Home(FloatLayout):
+	
 	def __init__(self):
 		super(Home, self).__init__()
 		# Window.clearcolor = (1, 1, 1, 1)
-		Window.size = (780, 600)
+		Window.size = (780, 475)
 		self.size = Window.size
 		self.deviceArray = Widget(size=(100,100))
 		self.add_widget(self.deviceArray)
 
+		self.addProgressbar()
+
 		self.setNodeProperties()
-
-
-		self.recordingProgressBar = ProgressBar(max=1000, pos=(0, -250), width=100, height=400)
-		self.add_widget(self.recordingProgressBar)
-		self.currentProgress = 0
-		self.recordingProgressBar.value = self.currentProgress
-
 		self.populateNodes(self.nodeSize)
-		
-		self.cameraViewButton = Button(text='Camera View', pos=(567, Window.size[1] - 475), size_hint = (.268,.4))
-		self.cameraViewButton.bind(on_press=self.changeActiveNode)
-		self.add_widget(self.cameraViewButton)
+
+		self.addCameraViewButton()
+		self.addNodeIncrementButton()
+
+		self.checkbox = CheckBox(pos=(400, Window.size[1] - 300), size=(100,100), size_hint = (.1,.1))
+		#self.checkbox.bind(active=self.showWebcamFeed)
+		#self.add_widget(self.checkbox)
+
+		self.addStatusLabel()
+
+		#self.recordNodes()
 
 	def createNode(self, xpos, ypos):
 		return Rectangle(pos=(xpos, ypos))
@@ -38,9 +49,9 @@ class Home(FloatLayout):
 			for rowNum in range(0,size[0]):
 				for colNum in range(0, size[1]):
 					currentNode = rowNum * size[1] + colNum
-					self.recordingProgressBar.value = (currentNode / self.nodeCount) * 1000
 					if currentNode == self.activeNode:
 						Color(1,0,0,1)
+						self.recordingProgressBar.value = (currentNode / self.nodeCount) * 1000
 					else:
 						Color(1,1,1,1)
 					self.deviceArrayList.append(self.createNode(colNum * 100 + colNum * 10 + 10, Window.size[1] - (rowNum + 1) * 110))
@@ -51,6 +62,22 @@ class Home(FloatLayout):
 			self.activeNode = 0
 		self.populateNodes(self.nodeSize)
 
+	def changeActiveNode2(self):
+		self.activeNode = self.activeNode + 1
+		if self.activeNode >= self.nodeCount:
+			self.activeNode = 0
+		self.populateNodes(self.nodeSize)
+		
+	def showWebcamFeed(self, instance):
+		webcamThread = WebcamThread(1, "CameraThread")
+		webcamThread.start()
+		#WebcamTest2.show_webcam()
+
+	def showWebcamFeed2(self, instance):
+		webcamThread = WebcamThread(1, "CameraThread")
+		webcamThread.start()
+		#WebcamTest2.show_webcam()
+
 	def setNodeProperties(self):
 		self.nodeSize = (2, 7)
 		self.activeNode = 0
@@ -60,10 +87,62 @@ class Home(FloatLayout):
 	def getNodeCount(self):
 		return self.nodeSize[0] * self.nodeSize[1]
 
+	def addProgressbar(self):
+		self.recordingProgressBar = ProgressBar(max=1000, pos=(0, -200), width=100, height=400)
+		self.add_widget(self.recordingProgressBar)
+		self.currentProgress = 0
+		self.recordingProgressBar.value = self.currentProgress
+
+	def addCameraViewButton(self):
+		self.cameraViewButton = Button(text='Camera View', pos=(567, Window.size[1] - 375), size_hint = (.268,.25))
+		self.cameraViewButton.bind(on_press=self.showWebcamFeed)
+		self.add_widget(self.cameraViewButton)
+
+	def addNodeIncrementButton(self):
+		self.nodeIncrement = Button(text='Increment', pos=(10, Window.size[1] - 375), size_hint = (.268,.25))
+		self.nodeIncrement.bind(on_press=self.changeActiveNode)
+		self.add_widget(self.nodeIncrement)
+
+	def addStatusLabel(self):
+		self.statusLabel = Label(text='Current status:')
+		self.statusLabel.font_size = '30sp'
+		self.add_widget(self.statusLabel)
+
+	def recordNodes(self):
+		for num, node in enumerate(self.deviceArrayList, start=1):
+			# if num > self.nodeCount:
+			# 	break
+			if num > 3:
+				break
+			webcamThread = WebcamThread(num, num)
+			webcamThread.start()
+			#webcamThread.join()
+			while webcamThread.isAlive():
+				pass
+			self.changeActiveNode2()
+			#print("Device {}: {}".format(num, node))
+
 
 class StatusInterface(App):
     def build(self):
         return Home()
+
+class WebcamThread(threading.Thread):
+   
+   def __init__(self, threadID, location):
+      threading.Thread.__init__(self)
+      self.threadID = threadID
+      self.location = location
+      self.name = 'node ' + str(location)
+      self.cameraTools = CameraTools()
+   
+   def run(self):
+      print ("Starting " + self.name)
+      # self.cameraTools.initializeCamera(4)
+      # self.cameraTools.record(10)
+      # self.cameraTools.view()
+      self.cameraTools.recordNode(self.location, 1, 3)
+      print ("Exiting " + self.name)
 
 
 if __name__ == '__main__':
