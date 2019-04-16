@@ -13,12 +13,15 @@ class CameraTools:
 
 	def initializeCamera(self, num):
 		self.cap = cv2.VideoCapture(0)
+		self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+		self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 		self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
-		self.out = cv2.VideoWriter(self.directoryPath + '/output ' + str(num) + '.avi', self.fourcc, 20.0, (640,480))
+		self.out = cv2.VideoWriter(self.directoryPath + '/output ' + str(num) + '.avi', self.fourcc, 20.0, (1280,720))
 
 	def record(self, duration):
 		startTime = time.time()
 		pDelta = 0
+		img_counter = 0
 
 		while(int(time.time() - startTime) < duration):
 			self.recordingProgress = (int(time.time() - startTime) / duration) * 100
@@ -28,6 +31,12 @@ class CameraTools:
 
 			if delta > pDelta:
 				print(delta)
+
+				if delta % 5 == 0:
+					img_name = "/Images/opencv_frame_{}.png".format(img_counter)
+					cv2.imwrite(self.directoryPath + img_name, frame)
+					print("{} written!".format(img_name))
+					img_counter += 1
 
 			if ret == True:
 				self.out.write(frame)
@@ -45,6 +54,8 @@ class CameraTools:
 
 	def view(self):
 		self.cap = cv2.VideoCapture(0)
+		# self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+		# self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 		while True:
 			ret, frame = self.cap.read()
 			if ret == True:
@@ -75,7 +86,9 @@ class CameraTools:
 		except OSError:
 			print ('Error: Creating directory. ' +  self.directoryPath)
 
-# test = CameraTools()
-# test.view()
+test = CameraTools()
+test.initializeCamera(1)
+test.record(10)
+#test.view()
 
 #wtfTest()
