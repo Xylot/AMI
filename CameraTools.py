@@ -10,6 +10,7 @@ class CameraTools:
 		self.displayCameraView = True
 		self.complete = False
 		self.createFolder('Node 1')
+		self.timeRemaining = 0
 
 	def initializeCamera(self, num):
 		self.cap = cv2.VideoCapture(0)
@@ -25,6 +26,7 @@ class CameraTools:
 
 		while(int(time.time() - startTime) < duration):
 			self.recordingProgress = (int(time.time() - startTime) / duration) * 100
+			self.timeRemaining = int(startTime - time.time())
 			ret, frame = self.cap.read()
 
 			delta = int(time.time() - startTime)
@@ -86,9 +88,9 @@ class CameraTools:
 		except OSError:
 			print ('Error: Creating directory. ' +  self.directoryPath)
 
-test = CameraTools()
-test.initializeCamera(1)
-test.record(10)
+# test = CameraTools()
+# test.initializeCamera(1)
+# test.record(10)
 #test.view()
 
 #wtfTest()

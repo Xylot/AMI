@@ -8,6 +8,8 @@ from kivy.core.window import Window
 from kivy.uix.progressbar import ProgressBar
 from kivy.uix.checkbox import CheckBox
 from kivy.config import Config
+from kivy.properties import StringProperty
+from kivy.clock import Clock
 
 import threading
 import time
@@ -16,6 +18,7 @@ from CameraTools import CameraTools
 
 
 class Home(FloatLayout):
+	tr = StringProperty()
 	
 	def __init__(self):
 		super(Home, self).__init__()
@@ -24,6 +27,12 @@ class Home(FloatLayout):
 		self.size = Window.size
 		self.deviceArray = Widget(size=(100,100))
 		self.add_widget(self.deviceArray)
+
+		self.timeRemaining = 10
+		self.startTime = time.time()
+		self.started = False
+		self.currentStatus = "Idle"
+		#self.timeLeftValueLabel.text = str(10-(time.time() - self.startTime))
 
 		self.addProgressbar()
 
@@ -35,15 +44,28 @@ class Home(FloatLayout):
 		self.addSettingsButton()
 		self.addStopButton()
 
-		self.checkbox = CheckBox(pos=(400, Window.size[1] - 300), size=(100,100), size_hint = (.1,.1))
+		#self.checkbox = CheckBox(pos=(400, Window.size[1] - 300), size=(100,100), size_hint = (.1,.1))
 		#self.checkbox.bind(active=self.showWebcamFeed)
 		#self.add_widget(self.checkbox)
 
 		self.addStatusLabel()
 		self.addTimeLeftLabel()
 		self.addCameraPositionLabel()
+		self.addTimeLeftValueLabel()
+		self.addCurrentStatusLabel()
 
+		self.cameraTools = CameraTools()
 		#self.recordNodes()
+
+	def updateTimeRemaining(self, *args):
+		if self.started:
+			if self.webcamThread.isAlive():
+				self.currentStatus = "Recording"
+				self.timeLeftValueLabel.text = str(10-int(time.time() - self.startTime))
+			else:
+				self.timeLeftValueLabel.text = str(10)
+
+		self.currentStatusLabel.text = self.currentStatus
 
 	def createNode(self, xpos, ypos):
 		return Line(rounded_rectangle=(xpos, ypos, 100, 100, 10))
@@ -74,8 +96,11 @@ class Home(FloatLayout):
 		self.populateNodes(self.nodeSize)
 		
 	def showWebcamFeed(self, instance):
-		webcamThread = WebcamThread(1, "CameraThread")
-		webcamThread.start()
+		self.started = True
+		self.startTime = time.time()
+		self.webcamThread = WebcamThread(1, "CameraThread", self.cameraTools)		
+		#self.timeLeftValueLabel.text = str(10-(time.time() - self.startTime))
+		self.webcamThread.start()
 		#WebcamTest2.show_webcam()
 
 	def showWebcamFeed2(self, instance):
@@ -88,6 +113,9 @@ class Home(FloatLayout):
 		self.activeNode = 0
 		self.nodeCount = self.getNodeCount()
 		self.deviceArrayList = []
+		self.recordTime = 10
+		self.recordCount = 1
+		self.fps = 10.0
 
 	def getNodeCount(self):
 		return self.nodeSize[0] * self.nodeSize[1]
@@ -137,6 +165,18 @@ class Home(FloatLayout):
 		self.cameraPositionLabel.pos = (-267, -100)
 		self.add_widget(self.cameraPositionLabel)
 
+	def addTimeLeftValueLabel(self):
+		self.timeLeftValueLabel = Label(text=str(10-int(time.time() - self.startTime)))
+		self.timeLeftValueLabel.font_size = '25sp'
+		self.timeLeftValueLabel.pos = (-120, -60)
+		self.add_widget(self.timeLeftValueLabel)
+
+	def addCurrentStatusLabel(self):
+		self.currentStatusLabel = Label(text=self.currentStatus)
+		self.currentStatusLabel.font_size = '25sp'
+		self.currentStatusLabel.pos = (-100, -20)
+		self.add_widget(self.currentStatusLabel)
+
 	def recordNodes(self):
 		for num, node in enumerate(self.deviceArrayList, start=1):
 			# if num > self.nodeCount:
@@ -153,24 +193,26 @@ class Home(FloatLayout):
 
 
 class StatusInterface(App):
-    def build(self):
-        return Home()
+	def build(self):
+		homeScreen = Home()
+		Clock.schedule_interval(homeScreen.updateTimeRemaining, 1)
+		return homeScreen
 
 class WebcamThread(threading.Thread):
    
-   def __init__(self, threadID, location):
+   def __init__(self, threadID, location, func):
       threading.Thread.__init__(self)
       self.threadID = threadID
       self.location = location
       self.name = 'node ' + str(location)
-      self.cameraTools = CameraTools()
+      self.cameraTools = func
    
    def run(self):
       print ("Starting " + self.name)
       # self.cameraTools.initializeCamera(4)
       # self.cameraTools.record(10)
       # self.cameraTools.view()
-      self.cameraTools.recordNode(self.location, 1, 3)
+      self.cameraTools.recordNode(self.location, 1, 10)
       print ("Exiting " + self.name)
 
 

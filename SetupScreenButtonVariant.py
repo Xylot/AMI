@@ -26,10 +26,16 @@ class Setup(FloatLayout):
 		self.setNodeProperties()
 		self.populateNodes(self.nodeSize)
 
-		self.add_widget(CustomBtn())
+		#self.add_widget(CustomBtn())
 
 	def createNode(self, xpos, ypos):
-		return Line(rounded_rectangle=(xpos, ypos, 100, 100, 10))
+		button = Button(text='', pos=(xpos, ypos), size_hint = (.125,.20833))
+		#button.bind(on_press=self.highlightNode)
+		return button
+		#return Line(rounded_rectangle=(xpos, ypos, 100, 100, 10))
+
+	def highlightNode(self):
+		pass
 
 	def populateNodes(self, size):
 		with self.deviceArray.canvas:
@@ -63,15 +69,6 @@ class CustomBtn(Widget):
     def on_pressed(self, instance, value):
         print("[CustomBtn] touch down at ", value)
 	
-class CustomNode(ButtonBehavior):
-	def on_press(self, *args):
-		self.activated = not self.activated
-		if self.activated:
-			self.background_color = (1, 0, 0, 1)
-		else:
-			self.background_color = (1, 1, 1, 1)
-
-
 class SetupInterface(App):
     def build(self):
         return Setup()
