@@ -18,7 +18,6 @@ from CameraTools import CameraTools
 
 
 class Home(FloatLayout):
-	tr = StringProperty()
 	
 	def __init__(self):
 		super(Home, self).__init__()
@@ -53,6 +52,7 @@ class Home(FloatLayout):
 		self.addCameraPositionLabel()
 		self.addTimeLeftValueLabel()
 		self.addCurrentStatusLabel()
+		self.addNodeLabels()
 
 		self.cameraTools = CameraTools()
 		#self.recordNodes()
@@ -63,13 +63,16 @@ class Home(FloatLayout):
 				self.currentStatus = "Recording"
 				self.timeLeftValueLabel.text = str(10-int(time.time() - self.startTime))
 			else:
+				self.currentStatus = "Idle"
 				self.timeLeftValueLabel.text = str(10)
+
+		if self.currentStatus == "Idle" and self.currentStatusLabel.text == "Recording":
+			self.changeActiveNode2()
 
 		self.currentStatusLabel.text = self.currentStatus
 
 	def createNode(self, xpos, ypos):
-		return Line(rounded_rectangle=(xpos, ypos, 100, 100, 10))
-		#return Rectangle(pos=(xpos, ypos))
+		return Line(rounded_rectangle=(xpos, ypos, 190, 210, 10))
 
 	def populateNodes(self, size):
 		with self.deviceArray.canvas:
@@ -81,7 +84,7 @@ class Home(FloatLayout):
 						self.recordingProgressBar.value = (currentNode / self.nodeCount) * 1000
 					else:
 						Color(1,1,1,1)
-					self.deviceArrayList.append(self.createNode(colNum * 100 + colNum * 10 + 10, Window.size[1] - (rowNum + 1) * 110))
+					self.deviceArrayList.append(self.createNode(colNum * 198 + 10, Window.size[1] - 220))
 	
 	def changeActiveNode(self, instance):
 		self.activeNode = self.activeNode + 1
@@ -109,7 +112,7 @@ class Home(FloatLayout):
 		#WebcamTest2.show_webcam()
 
 	def setNodeProperties(self):
-		self.nodeSize = (2, 7)
+		self.nodeSize = (1, 4)
 		self.activeNode = 0
 		self.nodeCount = self.getNodeCount()
 		self.deviceArrayList = []
@@ -156,19 +159,19 @@ class Home(FloatLayout):
 	def addTimeLeftLabel(self):
 		self.timeLeftLabel = Label(text='Time left in recording:')
 		self.timeLeftLabel.font_size = '25sp'
-		self.timeLeftLabel.pos = (-271, -60)
+		self.timeLeftLabel.pos = (-271, -90)
 		self.add_widget(self.timeLeftLabel)
 
 	def addCameraPositionLabel(self):
 		self.cameraPositionLabel = Label(text='Camera position (X,Y):')
 		self.cameraPositionLabel.font_size = '25sp'
-		self.cameraPositionLabel.pos = (-267, -100)
+		self.cameraPositionLabel.pos = (-267, -160)
 		self.add_widget(self.cameraPositionLabel)
 
 	def addTimeLeftValueLabel(self):
 		self.timeLeftValueLabel = Label(text=str(10-int(time.time() - self.startTime)))
 		self.timeLeftValueLabel.font_size = '25sp'
-		self.timeLeftValueLabel.pos = (-120, -60)
+		self.timeLeftValueLabel.pos = (-120, -90)
 		self.add_widget(self.timeLeftValueLabel)
 
 	def addCurrentStatusLabel(self):
@@ -176,6 +179,28 @@ class Home(FloatLayout):
 		self.currentStatusLabel.font_size = '25sp'
 		self.currentStatusLabel.pos = (-100, -20)
 		self.add_widget(self.currentStatusLabel)
+
+	def addNodeLabels(self):
+		self.nodeLabel = Label(text='A1')
+		self.nodeLabel.font_size = '25sp'
+		#print(self.deviceArrayList[0].width)
+		self.nodeLabel.pos = (-295, 125)
+		self.add_widget(self.nodeLabel)
+		self.nodeLabel = Label(text='A2')
+		self.nodeLabel.font_size = '25sp'
+		#print(self.deviceArrayList[0].width)
+		self.nodeLabel.pos = (-95, 125)
+		self.add_widget(self.nodeLabel)
+		self.nodeLabel = Label(text='A3')
+		self.nodeLabel.font_size = '25sp'
+		#print(self.deviceArrayList[0].width)
+		self.nodeLabel.pos = (105, 125)
+		self.add_widget(self.nodeLabel)
+		self.nodeLabel = Label(text='A4')
+		self.nodeLabel.font_size = '25sp'
+		#print(self.deviceArrayList[0].width)
+		self.nodeLabel.pos = (305, 125)
+		self.add_widget(self.nodeLabel)
 
 	def recordNodes(self):
 		for num, node in enumerate(self.deviceArrayList, start=1):

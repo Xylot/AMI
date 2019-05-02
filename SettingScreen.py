@@ -107,25 +107,25 @@ kv_text = '''
                     padding: [30,30]
 
                     CustLabel:
-                        text: "To Be Determined"
+                        text: "Distance (Horizonatal)"
 
                     CustTextInput:
                         id: pdwtv
 
                     CustLabel:
-                        text: "To Be Determined"
+                        text: "Distance (Vertical)"
 
                     CustTextInput:
                         id: sdwtv
 
                     CustButton:
                         text: "Apply"
+                        on_press: root
 
 '''
 class MyAccordion(Accordion):
-	def __init__(self):
-		super(MyAccordion, self).__init__()
-		print(self.recTime)
+	pass
+		
 	
 
 class MyApp(App):
