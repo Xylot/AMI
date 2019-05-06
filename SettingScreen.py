@@ -31,8 +31,11 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.accordion import Accordion
-
 from kivy.core.window import Window
+
+import os
+import json
+
 Window.size = (800, 480)
 
 
@@ -97,7 +100,7 @@ kv_text = '''
                         text: "Time Between Images"
 
                     CustTextInput:
-                        id: Image
+                        id: tbi
 
                 GridLayout:
                     rows: 4
@@ -110,22 +113,69 @@ kv_text = '''
                         text: "Distance (Horizonatal)"
 
                     CustTextInput:
-                        id: pdwtv
+                        id: disH
 
                     CustLabel:
                         text: "Distance (Vertical)"
 
                     CustTextInput:
-                        id: sdwtv
+                        id: disV
+
+                    CustLabel:
+                        text: "Number of Recordings"
+
+                    CustTextInput:
+                        id: recNum
 
                     CustButton:
                         text: "Apply"
-                        on_press: root
+                        on_press: root.exportData()
 
 '''
 class MyAccordion(Accordion):
-	pass
+    def __init__(self):
+        super(MyAccordion, self).__init__()
+        self.filename = 'settings.dat'
+        self.populateFields(self.filename)
+
+    def exportData(self):
+        self.recordingTime = int(self.ids.recTime.text)
+        self.framesPerSecond = float(self.ids.fps.text)
+        self.timeBetweenImages = int(self.ids.tbi.text)
+        self.distanceVertical = int(self.ids.disV.text)
+        self.distanceHorizontal = int(self.ids.disH.text)
+        self.recordingCount = int(self.ids.recNum.text)
+
+        self.settingsData = {
+            'RecordingTime': self.recordingTime,
+            'FramesPerSecond': self.framesPerSecond,
+            'TimeBetweenImages': self.timeBetweenImages,
+            'NumberOfRecordings': self.recordingCount,
+            'DistanceVertical': self.distanceVertical,
+            'DistanceHorizontal': self.distanceHorizontal
+        }
 		
+        self.outputJSON(self.settingsData, self.filename)
+
+    def outputJSON(self, data, filename):
+        with open(filename, 'w') as file:
+            json.dump(data, file)
+
+    def readConfig(self, filename):
+        with open(filename) as file:
+            config = json.load(file)
+        return config
+
+    def populateFields(self, filename):
+        if os.path.isfile(filename):
+            self.currentSettings = self.readConfig(filename)
+            self.ids.recTime.text = str(self.currentSettings['RecordingTime'])
+            self.ids.fps.text = str(self.currentSettings['FramesPerSecond'])
+            self.ids.tbi.text = str(self.currentSettings['TimeBetweenImages'])
+            self.ids.recNum.text = str(self.currentSettings['NumberOfRecordings'])
+            self.ids.disV.text = str(self.currentSettings['DistanceVertical'])
+            self.ids.disH.text = str(self.currentSettings['DistanceHorizontal'])
+        
 	
 
 class MyApp(App):

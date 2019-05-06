@@ -9,17 +9,17 @@ class CameraTools:
 	def __init__(self):
 		self.displayCameraView = True
 		self.complete = False
-		self.createFolder('Node 1')
+		#self.createFolder('Node 1')
 		self.timeRemaining = 0
 
-	def initializeCamera(self, num):
+	def initializeCamera(self, num, fps):
 		self.cap = cv2.VideoCapture(0)
 		self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 		self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 		self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
-		self.out = cv2.VideoWriter(self.directoryPath + '/output ' + str(num) + '.avi', self.fourcc, 20.0, (1280,720))
+		self.out = cv2.VideoWriter(self.directoryPath + '/output ' + str(num) + '.avi', self.fourcc, fps, (1280,720))
 
-	def record(self, duration):
+	def record(self, duration, imageInterval):
 		startTime = time.time()
 		pDelta = 0
 		img_counter = 0
@@ -34,8 +34,8 @@ class CameraTools:
 			if delta > pDelta:
 				print(delta)
 
-				if delta % 5 == 0:
-					img_name = "/Images/opencv_frame_{}.png".format(img_counter)
+				if delta % imageInterval == 0:
+					img_name = "opencv_frame_{}.png".format(img_counter)
 					cv2.imwrite(self.directoryPath + img_name, frame)
 					print("{} written!".format(img_name))
 					img_counter += 1
@@ -72,16 +72,17 @@ class CameraTools:
 		cv2.destroyAllWindows()
 		self.complete = True
 
-	def recordNode(self, location, count, duration):
+	def recordNode(self, location, count, duration, imageInterval, fps):
 		for i in range(count):
+			self.createFolder(location)
 			self.nodeProgress = (i + 1) / count
-			self.initializeCamera(i + 1)
-			self.record(duration)
+			self.initializeCamera(i + 1, fps)
+			self.record(duration, imageInterval)
 			self.endRecording()
 		pass
 
 	def createFolder(self, location):
-		self.directoryPath = './Recordings/' + location + '/' + str(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"))
+		self.directoryPath = './Recordings/' + location + '/' + str(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S") + '/')
 		try:
 			if not os.path.exists(self.directoryPath):
 				os.makedirs(self.directoryPath)
